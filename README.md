@@ -154,7 +154,9 @@ ansible-playbook -i hosts.yml tests.yml [--ask-sudo-password]
 `bridge` and `solc` binary are placed in `bridge` subfolder
 each parity subfolder has its own copy of `parity` binary (in case different version are required by different networks)
 
-2. playbook installs 3 services: `parity-home`, `parity-foreign` and `bridge`. Status of a service can be checked with
+2. if `initial_deployment` in `hosts.yml` is set to `yes` token contract is compiled and deployed to the foreign network using `token_foreign.py` and then registered with `foreign_tokenreg.py`. If `initial_deployment` is set to `no` then `db.toml` is copied from local machine (`db_toml_location`)
+
+3. playbook installs 3 services: `parity-home`, `parity-foreign` and `bridge`. Status of a service can be checked with
 ```
 sudo systemctl status [service-name]
 ```
@@ -167,7 +169,7 @@ Logs are collected by systemd to `/var/log/syslog` and can be viewed with
 tail -F /var/log/syslog | grep [service-name]
 ```
 
-3. `tests` run the following scenario
+4. `tests` run the following scenario
     1. deposit @ home: `home_deposit.py`
     2. check token balance after deposit: `token_balance.py` 
     3. withdraw from foreign: `token_withdraw.py`
