@@ -1,0 +1,8 @@
+---
+- hosts: all
+  roles:
+    - parity-home
+    - parity-foreign
+    - bridge
+    - role: initial-deployment
+      when: initial_deployment

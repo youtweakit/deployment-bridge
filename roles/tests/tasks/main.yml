@@ -1,0 +1,93 @@
+---
+- name: Create bridge/tests folder
+  file:
+    path: "{{ base_path }}/bridge/tests"
+    state: directory
+
+- name: Create files in bridge/tests
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ base_path }}/bridge/tests/{{ item }}"
+  with_items:
+    - home_deposit.py
+    - token_balance.py
+    - token_withdraw.py
+
+### add actor keys to parity-home and restart it
+- name: Add keys for test user to home
+  template:
+    src: "actor.json.j2"
+    dest: "{{ base_path }}/{{ home_name }}/parity_data/keys/{{ home_chain_name }}/actor.json"
+
+- name: Restart parity-home
+  become: yes
+  become_user: root
+  service:
+    name: parity-home
+    state: restarted
+
+### add actor keys to parity-foreign and restart it
+- name: Add keys for test user to foreign
+  template:
+    src: "actor.json.j2"
+    dest: "{{ base_path }}/{{ foreign_name }}/parity_data/keys/{{ foreign_chain_name }}/actor.json"
+
+- name: Restart parity-foreign
+  become: yes
+  become_user: root
+  service:
+    name: parity-foreign
+    state: restarted
+
+### restart bridge
+- name: Restart bridge
+  become: yes
+  become_user: root
+  service:
+    name: bridge
+    state: restarted
+
+### run tests
+###### make deposit at home
+- name: Run test (deposit @ home)
+  command: "python3 home_deposit.py"
+  args:
+    chdir: "{{ base_path }}/bridge/tests"
+  register:
+    home_deposit
+
+- debug:
+    msg: "{{ home_deposit.stdout }}"
+
+###### check token balance after deposit
+- name: Run test (check token balance after deposit)
+  command: "python3 token_balance.py"
+  args:
+    chdir: "{{ base_path }}/bridge/tests"
+  register:
+    token_balance_1
+
+- debug:
+    msg: "{{ token_balance_1.stdout }}"
+
+###### withdraw from foreign
+- name: Run test (withdraw from foreign)
+  command: "python3 token_withdraw.py"
+  args:
+    chdir: "{{ base_path }}/bridge/tests"
+  register:
+    token_withdraw
+
+- debug:
+    msg: "{{ token_withdraw.stdout }}"
+
+###### check token balance after withdraw
+- name: Run test (check token balance after withdraw)
+  command: "python3 token_balance.py"
+  args:
+    chdir: "{{ base_path }}/bridge/tests"
+  register:
+    token_balance_2
+
+- debug:
+    msg: "{{ token_balance_2.stdout }}"

@@ -1,0 +1,109 @@
+---
+- name: Create bridge folder
+  file:
+    path: "{{ base_path }}/bridge/"
+    state: directory
+
+- name: Download bridge binary
+  get_url:
+    url: "{{ bridge_bin_url }}"
+    checksum: "sha256:{{ bridge_bin_sha256 }}"
+    dest: "{{ base_path }}/bridge/bridge"
+    mode: "0755"
+  notify:
+    - restart bridge
+
+- name: Create bridge config
+  template:
+    src: config.toml.j2
+    dest: "{{ base_path }}/bridge/config.toml"
+  notify:
+    - restart bridge
+
+- name: Download solc binary
+  get_url:
+    url: "{{ solc_bin_url }}"
+    checksum: "sha256:{{ solc_bin_sha256 }}"
+    dest: "{{ base_path }}/bridge/solc"
+    mode: "0755"
+
+### bridge contract
+- name: Create bridge/contracts folder
+  file:
+    path: "{{ base_path }}/bridge/contracts"
+    state: directory
+
+- name: Download bridge.sol
+  get_url:
+    url: "{{ bridge_contract_source }}"
+    dest: "{{ base_path }}/bridge/contracts/bridge.sol"
+
+- name: Compile bridge contract (abi)
+  command: "../solc --abi bridge.sol --overwrite -o ./"
+  args:
+    chdir: "{{ base_path }}/bridge/contracts"
+
+- name: Compile bridge contract (bin)
+  command: "../solc --optimize --bin bridge.sol --overwrite -o ./"
+  args:
+    chdir: "{{ base_path }}/bridge/contracts"
+
+### token contract
+- name: Create bridge/token folder
+  file:
+    path: "{{ base_path }}/bridge/token"
+    state: directory
+
+- name: Download BridgeableToken.sol
+  get_url:
+    url:  "{{ token_contract_source }}"
+    dest: "{{ base_path }}/bridge/token/BridgeableToken.sol"
+
+- name: Compile token contract (abi)
+  command: "../solc --abi BridgeableToken.sol --overwrite -o ./"
+  args:
+    chdir: "{{ base_path }}/bridge/token"
+
+- name: Compile token contract (bin)
+  command: "../solc --optimize --bin BridgeableToken.sol --overwrite -o ./"
+  args:
+    chdir: "{{ base_path }}/bridge/token"
+
+- name: Copy local db.toml file
+  copy:
+    src: "{{ db_toml_location)"
+    dest: "{{ base_path }}/bridge"
+  when: not initial_deployment
+
+### tests
+### NOTE: tests should be separated
+- name: Create bridge/tests folder
+  file:
+    path: "{{ base_path }}/bridge/tests"
+    state: directory
+
+- name: Create test_env_db.toml file
+  template:
+    src: test_env_db.toml.j2
+    dest: "{{ base_path }}/bridge/tests/test_env_db.toml"
+
+### install service
+- name: Install bridge service
+  become: yes
+  become_user: root
+  template:
+    src: bridge.service.j2
+    dest: /etc/systemd/system/bridge.service
+    owner: root
+    group: root
+    mode: "0755"
+  notify:
+    - restart bridge
+
+- name: Ensure bridge is running and enabled to start at boot
+  become: yes
+  become_user: root
+  service:
+    name: bridge
+    state: started
+    enabled: yes
