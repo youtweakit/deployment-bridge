@@ -23,8 +23,8 @@
     path: "/{{ base_path }}/{{ home_name }}/logs/old"
     state: directory
     mode: 0755
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: root
+    group: root
 
 - name: Put home signer keyfile in keys folder
   template:
