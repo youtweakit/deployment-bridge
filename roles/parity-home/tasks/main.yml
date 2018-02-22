@@ -22,9 +22,7 @@
   file:
     path: "/{{ base_path }}/{{ home_name }}/logs/old"
     state: directory
-    mode: 0755
-    owner: root
-    group: root
+    mode: "0755"
 
 - name: Put home signer keyfile in keys folder
   template:
