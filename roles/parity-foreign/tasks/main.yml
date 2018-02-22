@@ -22,9 +22,7 @@
   file:
     path: "{{ base_path }}/{{ foreign_name }}/logs/old"
     state: directory
-    mode: 0755
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    mode: "0755"
 
 - name: Put foreign signer keyfile in keys folder
   template:
