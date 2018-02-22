@@ -1,9 +1,9 @@
 ---
 - hosts: all
   roles:
-    - preconfig
     - parity-home
     - parity-foreign
+    - preconfig
     - bridge
     - role: initial-deployment
       when: initial_deployment
