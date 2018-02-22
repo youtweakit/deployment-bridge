@@ -48,13 +48,6 @@
   tags:
     - configs
 
-- name: Add log file in node.toml
-  blockinfile:
-    path: "{{ base_path }}/{{ home_name }}/node.toml"
-    block: |
-      [misc]
-      log_file = "{{ base_path }}/{{ home_name }}/logs/parity.log"
-
 - name: Create parity-home password.pwd
   template:
     src: pass.pwd.j2
