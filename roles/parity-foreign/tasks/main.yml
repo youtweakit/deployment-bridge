@@ -18,6 +18,14 @@
     path: "{{ base_path }}/{{ foreign_name }}/parity_data/keys/{{ foreign_chain_name }}"
     state: directory
 
+- name: Create logs directories
+  file:
+    path: "{{ base_path }}/{{ foreign_name }}/logs/old"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
 - name: Put foreign signer keyfile in keys folder
   template:
     src: keyfile.json.j2
@@ -39,6 +47,13 @@
     - restart parity-foreign
   tags:
     - configs
+
+- name: Add log file in node.toml
+  blockinfile:
+    path: "{{ base_path }}/{{ foreign_name }}/node.toml"
+    block: |
+      [misc]
+      log_file = "{{ base_path }}/{{ foreign_name }}/logs/parity.log"
 
 - name: Create parity-foreign password.pwd
   template:
