@@ -18,6 +18,14 @@
     path: "{{ base_path }}/{{ home_name }}/parity_data/keys/{{ home_chain_name }}"
     state: directory
 
+- name: Create logs directories
+  file:
+    path: "/{{ base_path }}/{{ home_name }}/logs/old"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
 - name: Put home signer keyfile in keys folder
   template:
     src: keyfile.json.j2
@@ -39,6 +47,13 @@
     - restart parity-home
   tags:
     - configs
+
+- name: Add log file in node.toml
+  blockinfile:
+    path: "{{ base_path }}/{{ home_name }}/node.toml"
+    block: |
+      [misc]
+      log_file = "{{ base_path }}/{{ home_name }}/logs/parity.log"
 
 - name: Create parity-home password.pwd
   template:
