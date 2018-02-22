@@ -1,4 +1,4 @@
-/home/{{ ansible_user }}/logs/*.log {
+/{{base_path}}/{{ home_name }}/logs/*.log {
     rotate 10
     size 200M
     missingok
@@ -9,7 +9,7 @@
     olddir old
 }
 
-/home/{{ ansible_user }}/logs/*.err {
+/{{base_path}}/{{ home_name }}/logs/*.err {
     rotate 10
     size 200M
     missingok
@@ -20,7 +20,17 @@
     olddir old
 }
 
-/home/{{ ansible_user }}/logs/*.out {
+/{{base_path}}/{{ home_name }}/logs/*.out {
+    rotate 10
+    size 200M
+    missingok
+    compress
+    copytruncate
+    dateext
+    dateformat %Y-%m-%d-%s
+    olddir old
+}
+/{{base_path}}/{{ foreign_name }}/logs/*.log {
     rotate 10
     size 200M
     missingok
@@ -31,8 +41,7 @@
     olddir old
 }
 
-/home/{{ ansible_user }}/.pm2/pm2.log {
-    su {{ ansible_user }} {{ ansible_user }}
+/{{base_path}}/{{ foreign_name }}/logs/*.err {
     rotate 10
     size 200M
     missingok
@@ -40,4 +49,18 @@
     copytruncate
     dateext
     dateformat %Y-%m-%d-%s
+    olddir old
 }
+
+/{{base_path}}/{{ foreign_name }}/logs/*.out {
+    rotate 10
+    size 200M
+    missingok
+    compress
+    copytruncate
+    dateext
+    dateformat %Y-%m-%d-%s
+    olddir old
+}
+
+
