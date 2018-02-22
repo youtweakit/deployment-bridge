@@ -1,4 +1,6 @@
 ---
+### logrotate setup
+-include logrotate
 
 - name: uncomment compress in /etc/logrotate.conf
   lineinfile:
@@ -8,4 +10,4 @@
     line: 'compress'
     backrefs: yes
     
- -include logrotate
+ 
