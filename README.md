@@ -56,14 +56,14 @@ all:
       actor_password: "11"
 ```
 
-2. run the playbook (if `ansible_user` cannot execut `sudo` without password, add `--ask-sudo-password` flag below)
+2. run the playbook (if `ansible_user` cannot execut `sudo` without password, add `--ask-become-pass` flag below)
 ```
-ansible-playbook -i hosts.yml site.yml [--ask-sudo-password]
+ansible-playbook -i hosts.yml site.yml [--ask-become-pass]
 ```
 
 3. (optional) run tests on the remote
 ```
-ansible-playbook -i hosts.yml tests.yml [--ask-sudo-password]
+ansible-playbook -i hosts.yml tests.yml [--ask-become-pass]
 ```
 
 ### Deployment details
